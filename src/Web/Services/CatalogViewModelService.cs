@@ -37,7 +37,7 @@ public class CatalogViewModelService : ICatalogViewModelService
         _uriComposer = uriComposer;
     }
 
-    public async Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId)
+    public async Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId, bool showEu)
     {
         _logger.LogInformation("GetCatalogItems called.");
 
@@ -68,7 +68,8 @@ public class CatalogViewModelService : ICatalogViewModelService
                 ItemsPerPage = itemsOnPage.Count,
                 TotalItems = totalItems,
                 TotalPages = int.Parse(Math.Ceiling(((decimal)totalItems / itemsPage)).ToString())
-            }
+            },
+            ShowEuropeMessage = showEu
         };
 
         vm.PaginationInfo.Next = (vm.PaginationInfo.ActualPage == vm.PaginationInfo.TotalPages - 1) ? "is-disabled" : "";

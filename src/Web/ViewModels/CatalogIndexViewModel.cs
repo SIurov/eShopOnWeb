@@ -11,4 +11,5 @@ public class CatalogIndexViewModel
     public int? BrandFilterApplied { get; set; }
     public int? TypesFilterApplied { get; set; }
     public PaginationInfoViewModel? PaginationInfo { get; set; }
+    public bool ShowEuropeMessage { get; set; }
 }

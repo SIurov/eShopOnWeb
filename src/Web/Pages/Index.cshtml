@@ -2,6 +2,9 @@
 @{
     ViewData["Title"] = "Catalog";
     @model IndexModel
+    }
+@if (Model.CatalogModel.ShowEuropeMessage) {
+    <div>You see this because you are in Europe!</div>
 }
 <section class="esh-catalog-hero">
     <div class="container">
