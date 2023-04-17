@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
+using Microsoft.eShopWeb.Web.Pages;
 using Microsoft.eShopWeb.Web.ViewModels;
 using Microsoft.Extensions.Logging;
 
@@ -35,6 +37,14 @@ public class CatalogViewModelService : ICatalogViewModelService
         _brandRepository = brandRepository;
         _typeRepository = typeRepository;
         _uriComposer = uriComposer;
+    }
+
+    public async Task<string[]> GetCatalogItemNames(int[] ids)
+    {
+        var filterPaginatedSpecification =
+            new CatalogFilterPaginatedSpecification(0, 0, null, null);
+        var itemsOnPage = await _itemRepository.ListAsync(filterPaginatedSpecification);
+        return itemsOnPage.Select(x => x.Name).ToArray();
     }
 
     public async Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId, bool showEu)

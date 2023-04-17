@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.eShopWeb.ApplicationCore.Specifications;
 using Microsoft.eShopWeb.Web.Extensions;
 using Microsoft.eShopWeb.Web.ViewModels;
 using Microsoft.Extensions.Caching.Memory;
@@ -17,6 +18,15 @@ public class CachedCatalogViewModelService : ICatalogViewModelService
     {
         _cache = cache;
         _catalogViewModelService = catalogViewModelService;
+    }
+
+    public async Task<string[]> GetCatalogItemNames(int[] ids)
+    {
+        return await _cache.GetOrCreateAsync(CacheHelpers.GenerateBrandsCacheKey(), async entry =>
+        {
+            entry.SlidingExpiration = CacheHelpers.DefaultCacheDuration;
+            return await _catalogViewModelService.GetCatalogItemNames(ids);
+        });
     }
 
     public async Task<IEnumerable<SelectListItem>> GetBrands()
