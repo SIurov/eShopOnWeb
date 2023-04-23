@@ -1,5 +1,6 @@
 ﻿using System.Net.Mime;
 using Ardalis.ListStartupServices;
+using Azure.Identity;
 using BlazorAdmin;
 using BlazorAdmin.Services;
 using Blazored.LocalStorage;
@@ -43,6 +44,9 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddCoreServices(builder.Configuration);
 builder.Services.AddWebServices(builder.Configuration);
 
+/*Module 6
+ * builder.Configuration.AddAzureKeyVault(new Uri("https://module6.vault.azure.net/"), new DefaultAzureCredential(new DefaultAzureCredentialOptions()));
+*/
 // Add memory cache services
 builder.Services.AddMemoryCache();
 builder.Services.AddRouting(options =>
