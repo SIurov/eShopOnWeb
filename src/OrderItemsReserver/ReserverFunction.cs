@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -12,7 +10,7 @@ namespace OrderItemsReserver
 {
     public static class ReserverFunction
     {
-        [FunctionName("ReserverFunction")]
+        //[FunctionName("ReserverFunction")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             [Blob("module4/{DateTime}.json", Connection="BlobConnection")] BlobClient blobClient,

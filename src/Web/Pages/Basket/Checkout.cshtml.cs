@@ -1,4 +1,5 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Net;
+using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.Infrastructure.Identity;
 using Microsoft.eShopWeb.Web.Interfaces;
 using Microsoft.eShopWeb.Web.Services;
+using Newtonsoft.Json;
 
 namespace Microsoft.eShopWeb.Web.Pages.Basket;
 
@@ -59,14 +61,27 @@ public class CheckoutModel : PageModel
             var updateModel = items.ToDictionary(b => b.Id.ToString(), b => b.Quantity);
             await _basketService.SetQuantities(BasketModel.Id, updateModel);
             await _orderService.CreateOrderAsync(BasketModel.Id, new Address("123 Main St.", "Kent", "OH", "United States", "44240"));
-            await _basketService.DeleteBasketAsync(BasketModel.Id);
+            
+            var jsonContent = JsonContent.Create(new
+            {
+                ShippingAddress = "123 Main St. Kent OH, United States, 44240",
+                Items = BasketModel.Items.ToDictionary(x => x.ProductName, x => items.First(y => y.CatalogItemId == x.CatalogItemId).Quantity),
+                Total = BasketModel.Items.Sum(x => x.UnitPrice * items.First(y => y.CatalogItemId == x.CatalogItemId).Quantity)
 
-            var names = await _catalogViewModelService.GetCatalogItemNames(items.Select(x => x.Id).ToArray());
+            });
+            var httpClient = new HttpClient();
+
+            httpClient.DefaultRequestHeaders.Add("x-functions-key", "oUXldfiswnMKRd9NhNZ9qdrrUm1XGCv32_9pgvPGQHMWAzFunwPmkQ==");
+            var result = await httpClient.PostAsync("https://reserverfuncappm5.azurewebsites.net/api/CosmosReserverFunction", jsonContent);
+
+            /*
+             * Module 4
+             * var names = await _catalogViewModelService.GetCatalogItemNames(items.Select(x => x.Id).ToArray());
             var jsonContent = JsonContent.Create(items.Select(x => x.Id).Zip(names).ToDictionary(b => b.Item2, b => b.Item1));
             var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("x-functions-key", "gCOPcuN20NEb_kHs0Q-raCAMWflfleQIHqjefHGOhiaYAzFuwkDrZg==");
-            var result = await httpClient.PostAsync("https://module4funcapp.azurewebsites.net/api/reserverFunction", jsonContent);
-
+             * httpClient.DefaultRequestHeaders.Add("x-functions-key", "gCOPcuN20NEb_kHs0Q-raCAMWflfleQIHqjefHGOhiaYAzFuwkDrZg==");
+            var result = await httpClient.PostAsync("https://module4funcapp.azurewebsites.net/api/reserverFunction", jsonContent);*/
+            await _basketService.DeleteBasketAsync(BasketModel.Id);
         }
         catch (EmptyBasketOnCheckoutException emptyBasketOnCheckoutException)
         {
