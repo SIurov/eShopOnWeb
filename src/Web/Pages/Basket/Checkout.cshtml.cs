@@ -1,9 +1,11 @@
 ﻿using System.Net;
+using System.Text;
 using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Exceptions;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
@@ -11,6 +13,7 @@ using Microsoft.eShopWeb.Infrastructure.Identity;
 using Microsoft.eShopWeb.Web.Interfaces;
 using Microsoft.eShopWeb.Web.Services;
 using Newtonsoft.Json;
+using static Azure.Core.HttpHeader;
 
 namespace Microsoft.eShopWeb.Web.Pages.Basket;
 
@@ -61,8 +64,16 @@ public class CheckoutModel : PageModel
             var updateModel = items.ToDictionary(b => b.Id.ToString(), b => b.Quantity);
             await _basketService.SetQuantities(BasketModel.Id, updateModel);
             await _orderService.CreateOrderAsync(BasketModel.Id, new Address("123 Main St.", "Kent", "OH", "United States", "44240"));
+
+            // Module 7
+            var names = await _catalogViewModelService.GetCatalogItemNames(items.Select(x => x.Id).ToArray());
+            var body = JsonConvert.SerializeObject(items.Select(x => x.Id).Zip(names).ToDictionary(b => b.Item2, b => b.Item1));
+            var queue = new QueueClient("Endpoint=sb://m7siurov.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=eFmLtDyrE3EAqjO5VSrSukZeoB+NwhZ8e+ASbAdGFnM=",
+                "orders");
+            await queue.SendAsync(new Message(Encoding.UTF8.GetBytes(body)));
             
-            var jsonContent = JsonContent.Create(new
+            // Module 5
+           /* var jsonContent = JsonContent.Create(new
             {
                 ShippingAddress = "123 Main St. Kent OH, United States, 44240",
                 Items = BasketModel.Items.ToDictionary(x => x.ProductName, x => items.First(y => y.CatalogItemId == x.CatalogItemId).Quantity),
@@ -70,17 +81,18 @@ public class CheckoutModel : PageModel
 
             });
             var httpClient = new HttpClient();
-
             httpClient.DefaultRequestHeaders.Add("x-functions-key", "oUXldfiswnMKRd9NhNZ9qdrrUm1XGCv32_9pgvPGQHMWAzFunwPmkQ==");
-            var result = await httpClient.PostAsync("https://reserverfuncappm5.azurewebsites.net/api/CosmosReserverFunction", jsonContent);
+            var result = await httpClient.PostAsync("https://reserverfuncappm5.azurewebsites.net/api/CosmosReserverFunction", jsonContent);*/
 
-            /*
-             * Module 4
-             * var names = await _catalogViewModelService.GetCatalogItemNames(items.Select(x => x.Id).ToArray());
+
+            /*Module 4*/
+           /* var names = await _catalogViewModelService.GetCatalogItemNames(items.Select(x => x.Id).ToArray());
             var jsonContent = JsonContent.Create(items.Select(x => x.Id).Zip(names).ToDictionary(b => b.Item2, b => b.Item1));
             var httpClient = new HttpClient();
-             * httpClient.DefaultRequestHeaders.Add("x-functions-key", "gCOPcuN20NEb_kHs0Q-raCAMWflfleQIHqjefHGOhiaYAzFuwkDrZg==");
+            httpClient.DefaultRequestHeaders.Add("x-functions-key", "gCOPcuN20NEb_kHs0Q-raCAMWflfleQIHqjefHGOhiaYAzFuwkDrZg==");
             var result = await httpClient.PostAsync("https://module4funcapp.azurewebsites.net/api/reserverFunction", jsonContent);*/
+
+
             await _basketService.DeleteBasketAsync(BasketModel.Id);
         }
         catch (EmptyBasketOnCheckoutException emptyBasketOnCheckoutException)

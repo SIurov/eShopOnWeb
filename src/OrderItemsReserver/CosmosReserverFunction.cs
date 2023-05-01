@@ -11,7 +11,7 @@ namespace OrderItemsReserver
 {
     public static class CosmosReserverFunction
     {
-        [FunctionName("CosmosReserverFunction")]
+        //[FunctionName("CosmosReserverFunction")]
         public static IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             [CosmosDB(
