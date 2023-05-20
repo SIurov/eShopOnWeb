@@ -67,13 +67,13 @@ public class CheckoutModel : PageModel
 
             // Module 7
             var names = await _catalogViewModelService.GetCatalogItemNames(items.Select(x => x.Id).ToArray());
-            var body = JsonConvert.SerializeObject(items.Select(x => x.Id).Zip(names).ToDictionary(b => b.Item2, b => b.Item1));
-            var queue = new QueueClient("Endpoint=sb://m7siurov.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=eFmLtDyrE3EAqjO5VSrSukZeoB+NwhZ8e+ASbAdGFnM=",
+            var body = JsonConvert.SerializeObject(items.Select(x => x.Quantity).Zip(names).ToDictionary(b => b.Item2, b => b.Item1));
+            var queue = new QueueClient("Endpoint=sb://finalmsiurovsb.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=JgxsXFAKvRGszgF/qxPDdD86MkG13Xo/5+ASbA/9jAM=",
                 "orders");
             await queue.SendAsync(new Message(Encoding.UTF8.GetBytes(body)));
-            
+
             // Module 5
-           /* var jsonContent = JsonContent.Create(new
+            var jsonContent = JsonContent.Create(new
             {
                 ShippingAddress = "123 Main St. Kent OH, United States, 44240",
                 Items = BasketModel.Items.ToDictionary(x => x.ProductName, x => items.First(y => y.CatalogItemId == x.CatalogItemId).Quantity),
@@ -81,16 +81,16 @@ public class CheckoutModel : PageModel
 
             });
             var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("x-functions-key", "oUXldfiswnMKRd9NhNZ9qdrrUm1XGCv32_9pgvPGQHMWAzFunwPmkQ==");
-            var result = await httpClient.PostAsync("https://reserverfuncappm5.azurewebsites.net/api/CosmosReserverFunction", jsonContent);*/
+            httpClient.DefaultRequestHeaders.Add("x-functions-key", "YqWra-jURBJ8Yxgw4da5CTjkviIBYBNbhLLsjbF60lCEAzFuJLes2Q==");
+            var result = await httpClient.PostAsync("https://finalmorderitemsreserver.azurewebsites.net/api/CosmosReserverFunction", jsonContent);
 
 
             /*Module 4*/
-           /* var names = await _catalogViewModelService.GetCatalogItemNames(items.Select(x => x.Id).ToArray());
-            var jsonContent = JsonContent.Create(items.Select(x => x.Id).Zip(names).ToDictionary(b => b.Item2, b => b.Item1));
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("x-functions-key", "gCOPcuN20NEb_kHs0Q-raCAMWflfleQIHqjefHGOhiaYAzFuwkDrZg==");
-            var result = await httpClient.PostAsync("https://module4funcapp.azurewebsites.net/api/reserverFunction", jsonContent);*/
+            /* var names = await _catalogViewModelService.GetCatalogItemNames(items.Select(x => x.Id).ToArray());
+             var jsonContent = JsonContent.Create(items.Select(x => x.Id).Zip(names).ToDictionary(b => b.Item2, b => b.Item1));
+             var httpClient = new HttpClient();
+             httpClient.DefaultRequestHeaders.Add("x-functions-key", "gCOPcuN20NEb_kHs0Q-raCAMWflfleQIHqjefHGOhiaYAzFuwkDrZg==");
+             var result = await httpClient.PostAsync("https://module4funcapp.azurewebsites.net/api/reserverFunction", jsonContent);*/
 
 
             await _basketService.DeleteBasketAsync(BasketModel.Id);

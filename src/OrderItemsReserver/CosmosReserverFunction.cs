@@ -11,11 +11,11 @@ namespace OrderItemsReserver
 {
     public static class CosmosReserverFunction
     {
-        //[FunctionName("CosmosReserverFunction")]
+        [FunctionName("CosmosReserverFunction")]
         public static IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             [CosmosDB(
-                databaseName: "Module5Database",
+                databaseName: "FinalModuleDatabase",
                 containerName: "Orders",
                 Connection = "CosmosDBConnection")]out dynamic document,
             ILogger log)
@@ -26,8 +26,6 @@ namespace OrderItemsReserver
             document = JsonConvert.DeserializeObject<dynamic>(body);
             document["id"] = Guid.NewGuid().ToString();
 
-
-            //document = new { body[""] }
             log.LogInformation("Finish function.");
 
             return new OkResult();
